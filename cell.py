@@ -1,6 +1,6 @@
 import pygame
 
-from Game.colors import BLACK, BLUE, DARK_GRAY, GRAY, RED, WHITE
+from colors import BLACK, BLUE, DARK_GRAY, GRAY, RED, WHITE
 
 
 class Cell:

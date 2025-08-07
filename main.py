@@ -1,31 +1,30 @@
+"""Main entry point for the Minesweeper game.
+
+Initializes the game with specified dimensions, title, and difficulty.
+"""
+from typing import Literal
+
 import pygame
 
-from Game.game import Game
+from game import Game
 
 
 def main(
-    Width: float = 500,
-    Height: float = 625,
-    Title: str = "Minesweeper",
-    difficulty: str = "Easy",
+    width: float,
+    height: float,
+    title: str,
+    difficulty: Literal["Easy", "Medium", "Hard"],
 ) -> None:
-    """main Initializes and runs the Minesweeper game.
+    """The main function to start the Minesweeper game.
 
-    This function sets up the game window, handles display settings, and
-    creates a game instance based on the provided parameters.
+    This function initializes the game window, sets the title, sets the difficulty and starts the game.
 
-    Parameters
-    ----------
-    Width : float, optional
-        The width of the game window in pixels, by default 500
-    Height : float, optional
-        The height of the game window in pixels, by default 625
-    Title : str, optional
-        The title displayed on the game window, by default "Minesweeper"
-    difficulty : str, optional
-        The game difficulty, wich determines the size of the grid, the number
-        of mines, and the number of flags. Valid options are "Easy", "Medium",
-        and "Hard", by default "Easy"
+    Args:
+        width (float): Determines the width of the game window.
+        height (float): Determines the height of the game window.
+        title (str): Determines the title of the game window.
+        difficulty (Literal["Easy", "Medium", "Hard"]): Determines the
+            difficulty level of the game.
     """
     difficulties: dict[str, tuple[int, int, int]] = {
         "Easy": (9, 10, 10),
@@ -35,15 +34,17 @@ def main(
     size: int
     mine: int
     number_of_flags: int
-    # Breaking the long line into multiple lines for better readability
     size, mine, number_of_flags = difficulties.get(
         difficulty, difficulties["Easy"]
     )
-    pygame.display.set_mode(size=(Width, Height))
-    pygame.display.set_caption(title=Title)
-    Minesweeper = Game(size, mine, num_flags=number_of_flags)
-    Minesweeper.run()
+    pygame.display.set_mode((width, height))
+    pygame.display.set_caption(title)
+    minesweeper: Game = Game(size, mine, number_of_flags)
+    minesweeper.run()
 
+
+SIZE_RATIO: tuple[int, int] = (5, 4)
+SIZE_MULTIPLIER: float = 125.0
 
 if __name__ == "__main__":
-    main(difficulty="Hard")  # Change "Easy" to "Medium" or "Hard" as needed
+    main(SIZE_RATIO[0]*SIZE_MULTIPLIER, SIZE_RATIO[1]*SIZE_MULTIPLIER, "Minesweeper", "Hard")

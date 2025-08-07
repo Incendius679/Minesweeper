@@ -1,10 +1,10 @@
 import pygame
 from pygame.font import Font
 
-from Game.bot import Bot
-from Game.colors import *
-from Game.grid import Grid
-from Game.information_widget import TopBar
+from bot import Bot
+from colors import WHITE, GREEN, RED
+from grid import Grid
+from information_widget import TopBar
 
 pygame.init()
 
@@ -28,7 +28,7 @@ class Game:
         self.cell_size: int = self.grid_width // self.cell_num
         self.mines_count: int = mines_count
         self.top_bar = TopBar(width=self.screen_width, height=self.top_bar_height, num_flags=num_flags)
-        self.grid = Grid(width=self.grid_width, height=self.grid_height, cell_size=self.cell_size, cell_num=self.cell_num, mines_count=self.mines_count, shift=self.top_bar_height)
+        self.grid = Grid(cell_size=self.cell_size, cell_num=self.cell_num, mines_count=self.mines_count, shift=self.top_bar_height)
         self.bot = Bot(grid=self.grid, top_bar=self.top_bar)
         self.running = True
         self.paused = False
