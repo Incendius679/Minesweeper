@@ -1,118 +1,187 @@
+"""Create and handle the top bar of the Minesweeper game.
+
+This module defines the `TopBar` class, which is responsible for displaying
+the game score, elapsed time, number of flags, wins, and losses. It also
+provides methods to update and draw the top bar, reset the game state, and
+track wins and losses.
+"""
+
+from dataclasses import dataclass
 from typing import Self
 
 import pygame
 from pygame.font import Font
 
-from colors import BLACK
-from colors import GRAY
+from colors import BLACK, GRAY
+
+Coordinate = tuple[float, float]
+
+
+@dataclass
+class UIPositions:
+    """Positions for UI elements in the top bar.
+
+    This dataclass holds the relative positions of the score, time,
+    flags, wins, and losses in the top bar. Each position is defined as a
+    tuple of floats representing the relative x and y coordinates.
+
+    Attributes:
+        score (Coordinate): Position of the score text.
+        time (Coordinate): Position of the time text.
+        flags (Coordinate): Position of the flags text.
+        wins (Coordinate): Position of the wins text.
+        losses (Coordinate): Position of the losses text.
+    """
+
+    score: Coordinate
+    time: Coordinate
+    flags: Coordinate
+    wins: Coordinate
+    losses: Coordinate
+
+
+@dataclass
+class GameStats:
+    """Statistics for the Minesweeper game.
+
+    This dataclass holds the game statistics such as score, wins, losses,
+    and the number of flags. It is used to track the player's performance
+    throughout the game. Those statistics can be updated as the game
+    progresses, and will be displayed in the top bar.
+
+    Attributes:
+        score (int): The current score of the player.
+        wins (int): The number of games won by the player.
+        losses (int): The number of games lost by the player.
+        num_flags (int): The number of flags available to the player.
+        start_num_flags (int): The initial number of flags available to the player.
+    """
+
+    score: int
+    wins: int
+    losses: int
+    num_flags: int
+    start_num_flags: int
+
+
+@dataclass
+class GameTimer:
+    """Timer for the Minesweeper game.
+
+    This dataclass holds the start ticks and elapsed time for the game.
+    It is used to track how long the player has been playing, which is
+    displayed in the top bar. The timer starts when the game begins and
+    updates as the game progresses.
+
+    Attributes:
+        start_ticks (int): The time when the game started, in milliseconds.
+        elapsed_time (int): The total time elapsed since the game started, in seconds.
+        is_paused (bool): Indicates whether the game is paused.
+    """
+
+    start_ticks: int
+    elapsed_time: int
+    is_paused: bool
 
 
 class TopBar(pygame.Surface):
-    def __init__(
-            self: Self,
-            width: int,
-            height: float,
-            num_flags: int
-        ) -> None:
+    """Manage the top bar of the Minesweeper game.
+
+    This class inherits from `pygame.Surface` and is responsible for
+    displaying the game score, elapsed time, number of flags, wins, and losses.
+
+    Args:
+        pygame (pygame): The Pygame module used for creating the game window.
+
+    Attributes:
+        _width (int): The width of the top bar.
+        _height (float): The height of the top bar.
+        _font_size (int): The size of the font used for displaying text.
+        _font (Font): The Pygame font object used for rendering text.
+        _start_num_flags (int): The initial number of flags available to the player.
+        _positions (UIPositions): The positions of UI elements in the top bar.
+        stats (GameStats): The game statistics being tracked.
+        timer (GameTimer): The game timer tracking elapsed time.
+    """
+
+    def __init__(self: Self, width: int, height: float, num_flags: int) -> None:
         super().__init__((width, height))
         self._width: int = width
         self._height: float = height
-        self.score: int = 0
-        self.is_paused: bool = False
-        self._elapsed_time: int = 0
-        self.timer_start_ticks: int = pygame.time.get_ticks()
-        self._FONT_SIZE: int = 36
-        self._font: Font = pygame.font.SysFont(None, self._FONT_SIZE)
+        self._font_size: int = 36
+        self._font: Font = pygame.font.SysFont(None, self._font_size)
         self._start_num_flags: int = num_flags
-        self.num_flags: int = num_flags
-        self._wins: int = 0
-        self._losses: int = 0
-        self._SCORE_POS: tuple[float, float] = (0.1, 0.1)
-        self._TIME_POS: tuple[float, float] = (0.1, 0.3)
-        self._FLAGS_POS: tuple[float, float] = (0.1, 0.5)
-        self._WINS_POS: tuple[float, float] = (0.1, 0.7)
-        self._LOSSES_POS: tuple[float, float] = (0.5, 0.7)
+        self._positions: UIPositions = UIPositions(
+            (0.1, 0.1),
+            (0.1, 0.3),
+            (0.1, 0.5),
+            (0.1, 0.7),
+            (0.5, 0.7),
+        )
+        self.stats: GameStats = GameStats(0, 0, 0, num_flags, num_flags)
+        self.timer = GameTimer(
+            pygame.time.get_ticks(),
+            0,
+            False,
+        )
 
     def update(self: Self) -> None:
-        if not self.is_paused:
+        """Update the top bar with the current game state.
+
+        This method updates the elapsed time and redraws the top bar with
+        the current game statistics. It should be called regularly to keep
+        the top bar up to date with the game's progress.
+        """
+
+        if not self.timer.is_paused:
             current_time: int = pygame.time.get_ticks()
-            self._elapsed_time = (
-                current_time - self.timer_start_ticks
-                ) // 1000
+            self.timer.elapsed_time = (current_time - self.timer.start_ticks) // 1000
 
         self.draw()
 
     def draw(self: Self) -> None:
+        """Draw the top bar with current statistics.
+
+        This method fills the top bar with a gray background and draws the
+        current game statistics such as score, elapsed time, number of flags,
+        wins, and losses. It uses the Pygame font to render the text and
+        positions the text according to the defined UI positions.
+        """
         self.fill(GRAY)
-        score_text: pygame.Surface = self._font.render(
-            f'Score: {self.score}',
-            True,
-            BLACK
-            )
-        time_text: pygame.Surface = self._font.render(
-            f'Time: {self._elapsed_time}',
-            True,
-            BLACK
-            )
-        num_flags_text: pygame.Surface = self._font.render(
-            f'Flags: {self.num_flags}',
-            True,
-            BLACK
-            )
-        wins_text: pygame.Surface = self._font.render(
-            f'Wins: {self._wins}',
-            True,
-            BLACK
-            )
-        losses_text: pygame.Surface = self._font.render(
-            f'Losses: {self._losses}',
-            True,
-            BLACK
-            )
-        self.blit(
-            score_text,
-            (
-                self._SCORE_POS[0]*self._width,
-                self._SCORE_POS[1]*self._height
-                )
-            )
-        self.blit(
-            time_text,
-            (
-                self._TIME_POS[0]*self._width,
-                self._TIME_POS[1]*self._height
-                )
-            )
-        self.blit(
-            num_flags_text,
-            (
-                self._FLAGS_POS[0]*self._width,
-                self._FLAGS_POS[1]*self._height
-                )
-            )
-        self.blit(
-            wins_text,
-            (
-                self._WINS_POS[0]*self._width,
-                self._WINS_POS[1]*self._height
-                )
-            )
-        self.blit(
-            losses_text,
-            (
-                self._LOSSES_POS[0]*self._width,
-                self._LOSSES_POS[1]*self._height
-                )
+        for label, value_label, pos in (
+            ("Score", self.stats.score, self._positions.score),
+            ("Time", self.timer.elapsed_time, self._positions.time),
+            ("Flags", self.stats.num_flags, self._positions.flags),
+            ("Wins", self.stats.wins, self._positions.wins),
+            ("Losses", self.stats.losses, self._positions.losses),
+        ):
+            self.blit(
+                self._font.render(f"{label}: {value_label}", True, BLACK),
+                (pos[0] * self._width, pos[1] * self._height),
             )
 
     def reset(self: Self) -> None:
-        self.num_flags = self._start_num_flags
-        self.score = 0
-        self._elapsed_time = 0
-        self.timer_start_ticks = pygame.time.get_ticks()
+        """Reset the game state.
+
+        This method resets the game statistics and timer to their initial
+        values. It should be called when starting a new game or resetting the
+        current game.
+        """
+        self.stats.num_flags = self._start_num_flags
+        self.stats.score = 0
+        self.timer.elapsed_time = 0
+        self.timer.start_ticks = pygame.time.get_ticks()
 
     def add_win(self: Self) -> None:
-        self._wins += 1
+        """Add a win to the game statistics.
+
+        This method increments the number of wins in the game statistics.
+        """
+        self.stats.wins += 1
 
     def add_loss(self: Self) -> None:
-        self._losses += 1
+        """Add a loss to the game statistics.
+
+        This method increments the number of losses in the game statistics.
+        """
+        self.stats.losses += 1

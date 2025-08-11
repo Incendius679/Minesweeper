@@ -1,3 +1,4 @@
+from typing import Self
 import pygame
 
 from colors import BLACK, BLUE, DARK_GRAY, GRAY, RED, WHITE
@@ -15,9 +16,10 @@ class Cell:
         self.mines_around = 0
         self.font = pygame.font.SysFont(None, 36)
 
-
     def draw(self, screen: pygame.Surface):
-        rect = pygame.Rect(self.x * self.size, self.y * self.size + self.shift, self.size, self.size)
+        rect = pygame.Rect(
+            self.x * self.size, self.y * self.size + self.shift, self.size, self.size
+        )
         if self.is_revealed:
             if self.is_mine:
                 pygame.draw.rect(screen, RED, rect)
@@ -30,16 +32,14 @@ class Cell:
                     screen.blit(text, text_rect)
         else:
             pygame.draw.rect(screen, DARK_GRAY if self.is_flagged else GRAY, rect)
-        
-        pygame.draw.rect(screen, BLACK, rect, 1)
 
+        pygame.draw.rect(screen, BLACK, rect, 1)
 
     def toggle_flag(self):
         if not self.is_revealed:
             self.is_flagged = not self.is_flagged
 
-
-    def reveal(self):
+    def reveal(self: Self) -> bool:
         if not self.is_flagged:
             self.is_revealed = True
             return self.is_mine

@@ -2,6 +2,7 @@
 
 Initializes the game with specified dimensions, title, and difficulty.
 """
+
 from typing import Literal
 
 import pygame
@@ -17,7 +18,8 @@ def main(
 ) -> None:
     """The main function to start the Minesweeper game.
 
-    This function initializes the game window, sets the title, sets the difficulty and starts the game.
+    This function initializes the game window, sets the title, sets the
+    difficulty and starts the game.
 
     Args:
         width (float): Determines the width of the game window.
@@ -34,17 +36,20 @@ def main(
     size: int
     mine: int
     number_of_flags: int
-    size, mine, number_of_flags = difficulties.get(
-        difficulty, difficulties["Easy"]
-    )
+    size, mine, number_of_flags = difficulties.get(difficulty, difficulties["Easy"])
     pygame.display.set_mode((width, height))
     pygame.display.set_caption(title)
     minesweeper: Game = Game(size, mine, number_of_flags)
     minesweeper.run()
 
 
-SIZE_RATIO: tuple[int, int] = (5, 4)
+SIZE_RATIO: tuple[Literal[4], Literal[5]] = (4, 5)
 SIZE_MULTIPLIER: float = 125.0
 
 if __name__ == "__main__":
-    main(SIZE_RATIO[0]*SIZE_MULTIPLIER, SIZE_RATIO[1]*SIZE_MULTIPLIER, "Minesweeper", "Hard")
+    main(
+        SIZE_RATIO[0] * SIZE_MULTIPLIER,
+        SIZE_RATIO[1] * SIZE_MULTIPLIER,
+        "Minesweeper",
+        "Hard",
+    )
